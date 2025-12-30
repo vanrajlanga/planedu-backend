@@ -56,7 +56,8 @@ backend/
 
 1. **Clone the repository**
    ```bash
-   cd /Applications/XAMPP/xamppfiles/htdocs/Projects/collegedunia/backend
+   git clone git@github.com:vanrajlanga/planedu-backend.git
+   cd planedu-backend
    ```
 
 2. **Install dependencies**
@@ -66,22 +67,49 @@ backend/
 
 3. **Configure environment variables**
 
-   The `.env` file is already created. Update if needed:
+   Copy the example environment file and update with your values:
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update the `.env` file with your configuration:
    ```env
    PORT=3000
    DB_HOST=localhost
    DB_PORT=5432
    DB_NAME=collegedunia_db
    DB_USER=postgres
-   DB_PASSWORD=postgres
-   JWT_SECRET=your-secret-key-change-this
+   DB_PASSWORD=your-postgres-password
+   JWT_SECRET=your-super-secret-jwt-key-change-this
+   ADMIN_JWT_SECRET=your-admin-jwt-secret-key-change-this
    ```
 
-4. **Ensure PostgreSQL is running**
+4. **Set up PostgreSQL Database**
+
+   a. Ensure PostgreSQL is running:
    ```bash
    # Check if PostgreSQL is running
-   PGPASSWORD="postgres" /Library/PostgreSQL/17/bin/psql -U postgres -h localhost -c "SELECT version();"
+   psql --version
+   pg_isready
    ```
+
+   b. Create the database:
+   ```bash
+   psql -U postgres -c "CREATE DATABASE collegedunia_db;"
+   ```
+
+   c. Import the database schema and data:
+   ```bash
+   psql -U postgres -d collegedunia_db -f database.sql
+   ```
+
+   This will create all tables, indexes, and insert initial data.
+
+5. **Verify database import**
+   ```bash
+   psql -U postgres -d collegedunia_db -c "\dt"
+   ```
+   You should see all the tables listed.
 
 ## Running the Server
 

@@ -30,6 +30,17 @@ const adminBannerRoutes = require('./routes/admin/adminBannerRoutes');
 const adminUploadRoutes = require('./routes/admin/uploadRoutes');
 const adminSettingsRoutes = require('./routes/admin/adminSettingsRoutes');
 
+// New CMS routes
+const adminAuthorRoutes = require('./routes/admin/adminAuthorRoutes');
+const adminContentRoutes = require('./routes/admin/adminContentRoutes');
+const adminUpdatesRoutes = require('./routes/admin/adminUpdatesRoutes');
+const adminCutoffRoutes = require('./routes/admin/adminCutoffRoutes');
+const adminRankingRoutes = require('./routes/admin/adminRankingRoutes');
+const adminHostelRoutes = require('./routes/admin/adminHostelRoutes');
+const adminFacultyRoutes = require('./routes/admin/adminFacultyRoutes');
+const adminRecruiterRoutes = require('./routes/admin/adminRecruiterRoutes');
+const adminGalleryRoutes = require('./routes/admin/adminGalleryRoutes');
+
 const app = express();
 
 // Security middleware
@@ -87,6 +98,19 @@ app.use('/api/v1/admin/news', adminNewsRoutes);
 app.use('/api/v1/admin/banners', adminBannerRoutes);
 app.use('/api/v1/admin/upload', adminUploadRoutes);
 app.use('/api/v1/admin/settings', adminSettingsRoutes);
+
+// CMS Routes
+app.use('/api/v1/admin/authors', adminAuthorRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/content', adminContentRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/updates', adminUpdatesRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/cutoffs', adminCutoffRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/rankings', adminRankingRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/hostels', adminHostelRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/faculty', adminFacultyRoutes);
+app.use('/api/v1/admin/colleges/:collegeId/gallery', adminGalleryRoutes);
+app.use('/api/v1/admin/placements', adminRecruiterRoutes);
+// Standalone content sections endpoint
+app.use('/api/v1/admin/content', adminContentRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

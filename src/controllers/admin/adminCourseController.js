@@ -195,7 +195,10 @@ exports.createCourse = async (req, res) => {
       course_mode,
       description,
       status,
-      is_featured
+      is_featured,
+      application_start_date,
+      application_end_date,
+      brochure_url
     } = req.body;
 
     // Validate required fields
@@ -223,9 +226,10 @@ exports.createCourse = async (req, res) => {
       INSERT INTO courses (
         college_id, course_name, short_name, degree_type, duration, stream,
         specialization, total_fees, fees_type, eligibility, seats_available,
-        course_mode, description, status, is_featured
+        course_mode, description, status, is_featured,
+        application_start_date, application_end_date, brochure_url
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *
     `;
 
@@ -244,7 +248,10 @@ exports.createCourse = async (req, res) => {
       course_mode || 'Full-time',
       description || null,
       status || 'active',
-      is_featured || false
+      is_featured || false,
+      application_start_date || null,
+      application_end_date || null,
+      brochure_url || null
     ];
 
     const result = await client.query(query, values);
@@ -309,7 +316,8 @@ exports.updateCourse = async (req, res) => {
     const allowedFields = [
       'college_id', 'course_name', 'short_name', 'degree_type', 'duration',
       'stream', 'specialization', 'total_fees', 'fees_type', 'eligibility',
-      'seats_available', 'course_mode', 'description', 'status', 'is_featured'
+      'seats_available', 'course_mode', 'description', 'status', 'is_featured',
+      'application_start_date', 'application_end_date', 'brochure_url'
     ];
 
     const updateFields = [];

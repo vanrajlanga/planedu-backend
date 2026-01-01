@@ -66,6 +66,17 @@ if (process.env.NODE_ENV !== 'production') {
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Root endpoint - API info
+app.get('/', (req, res) => {
+  res.status(200).json({
+    name: 'PlanEdu API',
+    version: process.env.API_VERSION || '1.0',
+    status: 'running',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({

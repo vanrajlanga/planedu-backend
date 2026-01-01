@@ -46,26 +46,9 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : ['*'];
-
+// CORS configuration - Allow all origins
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-
-    // Allow all origins in development or if '*' is set
-    if (allowedOrigins.includes('*')) return callback(null, true);
-
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error('Not allowed by CORS'));
-  },
+  origin: true,
   credentials: true
 }));
 

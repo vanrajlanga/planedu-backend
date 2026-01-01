@@ -1,9 +1,13 @@
+// Store Passenger/Plesk port before dotenv overwrites it
+const PASSENGER_PORT = process.env.PORT;
+
 require('dotenv').config();
 
 const app = require('./app');
 const { pool } = require('./config/database');
 
-const PORT = process.env.PORT || 3000;
+// Use Passenger's port if available, otherwise use .env PORT or default
+const PORT = PASSENGER_PORT || process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Start server

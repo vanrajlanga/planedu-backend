@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Explicitly set .env path (fixes Passenger working directory issue)
+const envPath = path.join(__dirname, '../.env');
+
 // Log file path
 const logFile = path.join(__dirname, '../logs/server.log');
 
@@ -34,8 +37,12 @@ const PASSENGER_PORT = process.env.PORT;
 log('INFO', `PASSENGER_PORT captured: ${PASSENGER_PORT}`);
 
 try {
-  require('dotenv').config();
+  log('INFO', `Loading .env from: ${envPath}`);
+  log('INFO', `.env file exists: ${fs.existsSync(envPath)}`);
+  require('dotenv').config({ path: envPath });
   log('INFO', 'dotenv loaded successfully');
+  log('INFO', `DB_NAME: ${process.env.DB_NAME}`);
+  log('INFO', `DB_HOST: ${process.env.DB_HOST}`);
   log('INFO', `PORT after dotenv: ${process.env.PORT}`);
 } catch (error) {
   log('ERROR', 'Failed to load dotenv', error);

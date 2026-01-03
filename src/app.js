@@ -13,6 +13,7 @@ const collegeRoutes = require('./routes/collegeRoutes');
 
 // Import public routes
 const publicCollegeRoutes = require('./routes/public/publicCollegeRoutes');
+const publicCourseRoutes = require('./routes/public/publicCourseRoutes');
 
 // Import admin routes
 const adminAuthRoutes = require('./routes/admin/adminAuthRoutes');
@@ -40,6 +41,10 @@ const adminHostelRoutes = require('./routes/admin/adminHostelRoutes');
 const adminFacultyRoutes = require('./routes/admin/adminFacultyRoutes');
 const adminRecruiterRoutes = require('./routes/admin/adminRecruiterRoutes');
 const adminGalleryRoutes = require('./routes/admin/adminGalleryRoutes');
+const adminQuickTabsRoutes = require('./routes/admin/adminQuickTabsRoutes');
+const adminCoursePageContentRoutes = require('./routes/admin/adminCoursePageContentRoutes');
+const adminCourseTypesRoutes = require('./routes/admin/adminCourseTypesRoutes');
+const courseLocationContentRoutes = require('./routes/admin/courseLocationContentRoutes');
 
 const app = express();
 
@@ -92,7 +97,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/colleges', collegeRoutes);
 
 // Public API Routes
-app.use('/api', publicCollegeRoutes);
+app.use('/api/v1', publicCollegeRoutes);
+app.use('/api/v1', publicCourseRoutes);
 
 // Admin API Routes
 app.use('/api/v1/admin/auth', adminAuthRoutes);
@@ -120,6 +126,10 @@ app.use('/api/v1/admin/colleges/:collegeId/hostels', adminHostelRoutes);
 app.use('/api/v1/admin/colleges/:collegeId/faculty', adminFacultyRoutes);
 app.use('/api/v1/admin/colleges/:collegeId/gallery', adminGalleryRoutes);
 app.use('/api/v1/admin/placements', adminRecruiterRoutes);
+app.use('/api/v1/admin/quick-tabs', adminQuickTabsRoutes);
+app.use('/api/v1/admin/course-page-content', adminCoursePageContentRoutes);
+app.use('/api/v1/admin/course-types', adminCourseTypesRoutes);
+app.use('/api/v1/admin/course-location-content', courseLocationContentRoutes);
 // Standalone content sections endpoint
 app.use('/api/v1/admin/content', adminContentRoutes);
 

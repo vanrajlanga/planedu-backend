@@ -153,53 +153,47 @@ exports.createExam = async (req, res) => {
     const {
       exam_name,
       short_name,
-      level,
-      mode,
+      slug,
+      exam_category,
+      exam_level,
+      exam_mode,
       conducting_body,
-      exam_date,
-      application_start_date,
-      application_end_date,
-      eligibility,
-      exam_pattern,
-      syllabus,
-      website_url,
+      official_website,
       description,
-      status
+      is_active
     } = req.body;
 
     // Validate required fields
-    if (!exam_name || !level || !mode) {
+    if (!exam_name || !exam_level || !exam_mode) {
       return res.status(400).json({
         success: false,
         message: 'Exam name, level, and mode are required'
       });
     }
 
+    // Generate slug if not provided
+    const examSlug = slug || exam_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
     const query = `
       INSERT INTO exams (
-        exam_name, short_name, level, mode, conducting_body, exam_date,
-        application_start_date, application_end_date, eligibility, exam_pattern,
-        syllabus, website_url, description, status
+        exam_name, short_name, slug, exam_category, exam_level, exam_mode,
+        conducting_body, official_website, description, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `;
 
     const values = [
       exam_name,
       short_name || null,
-      level,
-      mode,
+      examSlug,
+      exam_category || null,
+      exam_level,
+      exam_mode,
       conducting_body || null,
-      exam_date || null,
-      application_start_date || null,
-      application_end_date || null,
-      eligibility || null,
-      exam_pattern || null,
-      syllabus || null,
-      website_url || null,
+      official_website || null,
       description || null,
-      status || 'active'
+      is_active !== undefined ? is_active : true
     ];
 
     const result = await client.query(query, values);

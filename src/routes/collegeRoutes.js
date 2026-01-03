@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const collegeController = require('../controllers/collegeController');
+const publicCollegeController = require('../controllers/public/publicCollegeController');
 const { optionalAuth } = require('../middleware/auth');
 
 /**
@@ -9,6 +10,13 @@ const { optionalAuth } = require('../middleware/auth');
  * @access  Public
  */
 router.get('/', optionalAuth, collegeController.getAllColleges);
+
+/**
+ * @route   GET /api/v1/colleges/top
+ * @desc    Get top 10 colleges filtered by course type
+ * @access  Public
+ */
+router.get('/top', publicCollegeController.getTopColleges);
 
 /**
  * @route   GET /api/v1/colleges/:slug

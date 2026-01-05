@@ -15,9 +15,9 @@ exports.getAll = async (req, res) => {
     let query = `
       SELECT
         clc.*,
-        ca.name as author_name
+        au.name as author_name
       FROM course_location_content clc
-      LEFT JOIN content_authors ca ON clc.author_id = ca.id
+      LEFT JOIN admin_users au ON clc.author_id = au.admin_id
       WHERE 1=1
     `;
     const params = [];
@@ -101,9 +101,9 @@ exports.getOne = async (req, res) => {
     const query = `
       SELECT
         clc.*,
-        ca.name as author_name
+        au.name as author_name
       FROM course_location_content clc
-      LEFT JOIN content_authors ca ON clc.author_id = ca.id
+      LEFT JOIN admin_users au ON clc.author_id = au.admin_id
       WHERE clc.course_type = $1 AND clc.location_slug = $2
     `;
 

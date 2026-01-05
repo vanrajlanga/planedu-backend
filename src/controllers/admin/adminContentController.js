@@ -33,15 +33,15 @@ const getAllContent = async (req, res, next) => {
       return ApiResponse.error(res, 'College not found', 404);
     }
 
-    // Get all content sections with author info
+    // Get all content sections with author info from admin_users
     const contentQuery = `
       SELECT
         cc.*,
-        ca.name as author_name,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_image
+        au.name as author_name,
+        au.role as author_designation,
+        NULL as author_image
       FROM college_content cc
-      LEFT JOIN content_authors ca ON cc.author_id = ca.id
+      LEFT JOIN admin_users au ON cc.author_id = au.admin_id
       WHERE cc.college_id = $1
       ORDER BY cc.section_type ASC
     `;
@@ -105,16 +105,16 @@ const getContentSection = async (req, res, next) => {
       return ApiResponse.error(res, 'College not found', 404);
     }
 
-    // Get content section with author info
+    // Get content section with author info from admin_users
     const contentQuery = `
       SELECT
         cc.*,
-        ca.name as author_name,
-        ca.slug as author_slug,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_image
+        au.name as author_name,
+        au.email as author_slug,
+        au.role as author_designation,
+        NULL as author_image
       FROM college_content cc
-      LEFT JOIN content_authors ca ON cc.author_id = ca.id
+      LEFT JOIN admin_users au ON cc.author_id = au.admin_id
       WHERE cc.college_id = $1 AND cc.section_type = $2
     `;
 
@@ -174,9 +174,9 @@ const upsertContentSection = async (req, res, next) => {
       return ApiResponse.error(res, 'College not found', 404);
     }
 
-    // If author_id provided, verify it exists
+    // If author_id provided, verify it exists in admin_users
     if (author_id) {
-      const authorCheck = await query('SELECT id FROM content_authors WHERE id = $1', [author_id]);
+      const authorCheck = await query('SELECT admin_id FROM admin_users WHERE admin_id = $1', [author_id]);
       if (authorCheck.rows.length === 0) {
         return ApiResponse.error(res, 'Author not found', 404);
       }
@@ -249,11 +249,11 @@ const upsertContentSection = async (req, res, next) => {
       ]);
     }
 
-    // Get author info for response
+    // Get author info from admin_users for response
     let authorInfo = null;
     if (result.rows[0].author_id) {
       const authorResult = await client.query(
-        'SELECT name, designation, profile_image_url FROM content_authors WHERE id = $1',
+        'SELECT name, role as designation FROM admin_users WHERE admin_id = $1',
         [result.rows[0].author_id]
       );
       if (authorResult.rows.length > 0) {

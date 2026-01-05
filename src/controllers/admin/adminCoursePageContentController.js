@@ -12,11 +12,11 @@ exports.getAllCoursePageContent = async (req, res) => {
     const query = `
       SELECT
         cpc.*,
-        ca.name as author_name,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_avatar
+        au.name as author_name,
+        au.role as author_designation,
+        NULL as author_avatar
       FROM course_page_content cpc
-      LEFT JOIN content_authors ca ON cpc.author_id = ca.id
+      LEFT JOIN admin_users au ON cpc.author_id = au.admin_id
       ORDER BY cpc.course_type ASC
     `;
 
@@ -52,11 +52,11 @@ exports.getCoursePageContentByType = async (req, res) => {
     const query = `
       SELECT
         cpc.*,
-        ca.name as author_name,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_avatar
+        au.name as author_name,
+        au.role as author_designation,
+        NULL as author_avatar
       FROM course_page_content cpc
-      LEFT JOIN content_authors ca ON cpc.author_id = ca.id
+      LEFT JOIN admin_users au ON cpc.author_id = au.admin_id
       WHERE cpc.course_type = $1
     `;
 

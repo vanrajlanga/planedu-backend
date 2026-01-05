@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload, uploadBannerImage, deleteBannerImage } = require('../../controllers/admin/uploadController');
+const { upload, galleryUpload, uploadBannerImage, deleteBannerImage, uploadGalleryImage, deleteGalleryImage } = require('../../controllers/admin/uploadController');
 const { authenticateAdmin } = require('../../middleware/admin/adminAuth');
 
 // All routes require admin authentication
@@ -19,5 +19,19 @@ router.post('/banner', upload.single('image'), uploadBannerImage);
  * @access  Admin
  */
 router.delete('/banner/:filename', deleteBannerImage);
+
+/**
+ * @route   POST /api/v1/admin/upload/gallery
+ * @desc    Upload gallery image
+ * @access  Admin
+ */
+router.post('/gallery', galleryUpload.single('image'), uploadGalleryImage);
+
+/**
+ * @route   DELETE /api/v1/admin/upload/gallery/:filename
+ * @desc    Delete gallery image
+ * @access  Admin
+ */
+router.delete('/gallery/:filename', deleteGalleryImage);
 
 module.exports = router;

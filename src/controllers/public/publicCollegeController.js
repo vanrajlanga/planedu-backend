@@ -1196,12 +1196,12 @@ exports.getCoursePageContent = async (req, res) => {
         cpc.meta_title,
         cpc.meta_description,
         cpc.updated_at,
-        ca.name as author_name,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_avatar,
-        ca.is_verified as author_verified
+        au.name as author_name,
+        au.role as author_designation,
+        NULL as author_avatar,
+        true as author_verified
       FROM course_page_content cpc
-      LEFT JOIN content_authors ca ON cpc.author_id = ca.id
+      LEFT JOIN admin_users au ON cpc.author_id = au.admin_id
       WHERE cpc.course_type = $1 AND cpc.status = 'published'
     `, [courseType]);
 
@@ -1262,12 +1262,12 @@ exports.getCourseLocationContent = async (req, res) => {
     const result = await client.query(`
       SELECT
         clc.*,
-        ca.name as author_name,
-        ca.designation as author_designation,
-        ca.profile_image_url as author_avatar,
-        ca.is_verified as author_verified
+        au.name as author_name,
+        au.role as author_designation,
+        NULL as author_avatar,
+        true as author_verified
       FROM course_location_content clc
-      LEFT JOIN content_authors ca ON clc.author_id = ca.id
+      LEFT JOIN admin_users au ON clc.author_id = au.admin_id
       WHERE clc.course_type = $1 AND clc.location_slug = $2 AND clc.status = 'published'
     `, [courseType, locationSlug]);
 

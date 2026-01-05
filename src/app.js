@@ -32,7 +32,6 @@ const adminUploadRoutes = require('./routes/admin/uploadRoutes');
 const adminSettingsRoutes = require('./routes/admin/adminSettingsRoutes');
 
 // New CMS routes
-const adminAuthorRoutes = require('./routes/admin/adminAuthorRoutes');
 const adminContentRoutes = require('./routes/admin/adminContentRoutes');
 const adminUpdatesRoutes = require('./routes/admin/adminUpdatesRoutes');
 const adminCutoffRoutes = require('./routes/admin/adminCutoffRoutes');
@@ -48,8 +47,11 @@ const courseLocationContentRoutes = require('./routes/admin/courseLocationConten
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware - Configure helmet to allow cross-origin resources
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false
+}));
 
 // CORS configuration - Allow all origins
 app.use(cors({
@@ -117,7 +119,6 @@ app.use('/api/v1/admin/upload', adminUploadRoutes);
 app.use('/api/v1/admin/settings', adminSettingsRoutes);
 
 // CMS Routes
-app.use('/api/v1/admin/authors', adminAuthorRoutes);
 app.use('/api/v1/admin/colleges/:collegeId/content', adminContentRoutes);
 app.use('/api/v1/admin/colleges/:collegeId/updates', adminUpdatesRoutes);
 app.use('/api/v1/admin/colleges/:collegeId/cutoffs', adminCutoffRoutes);

@@ -79,3 +79,38 @@ UPDATE degree_type_content SET author_id = 1 WHERE author_id IS NOT NULL;
 -- ca.profile_image_url -> NULL (admin_users doesn't have profile images)
 -- ca.is_verified -> true (all admins are verified)
 -- ============================================================
+
+-- ============================================================
+-- 2026-01-06: Frontend User Authentication (OTP-based)
+-- ============================================================
+-- Make email column nullable to support phone-only registration.
+-- Users can now register/login with just their phone number.
+-- OTP is sent to the phone and verified for authentication.
+-- ============================================================
+
+-- Make email nullable for phone-only registration
+ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
+
+-- ============================================================
+-- Summary of Authentication Implementation:
+-- ============================================================
+--
+-- Backend Changes:
+-- 1. authValidator.js - Made city and course fields optional
+-- 2. authController.js - Register/Login with phone, OTP generation
+-- 3. authRoutes.js - /register, /verify-otp, /resend-otp, /me, /logout
+--
+-- Frontend Changes:
+-- 1. context/AuthContext.jsx - Global auth state management
+-- 2. components/auth/AuthModal.jsx - Login modal with OTP flow
+-- 3. components/auth/UserDropdown.jsx - User menu after login
+-- 4. components/layout/Header.jsx - Conditional login/user display
+--
+-- Auth Flow:
+-- 1. User enters phone number -> POST /api/v1/auth/register
+-- 2. Backend generates 6-digit OTP (logged in dev, SMS in prod)
+-- 3. User enters OTP -> POST /api/v1/auth/verify-otp
+-- 4. Backend returns JWT token + user data
+-- 5. Frontend stores token in localStorage as 'auth_token'
+-- 6. Subsequent requests include Authorization: Bearer <token>
+-- ============================================================

@@ -10,6 +10,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const collegeRoutes = require('./routes/collegeRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Import public routes
 const publicCollegeRoutes = require('./routes/public/publicCollegeRoutes');
@@ -97,6 +98,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/colleges', collegeRoutes);
+app.use('/api/v1/user', userRoutes);
 
 // Public API Routes
 app.use('/api/v1', publicCollegeRoutes);

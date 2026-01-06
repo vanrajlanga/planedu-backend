@@ -25,14 +25,12 @@ const registerValidator = [
     .isLength({ min: 1, max: 200 })
     .withMessage('Name must be between 1 and 200 characters'),
   body('city')
-    .notEmpty()
-    .withMessage('City is required')
+    .optional()
     .trim()
     .isLength({ min: 1, max: 100 })
     .withMessage('City must be between 1 and 100 characters'),
   body('course')
-    .notEmpty()
-    .withMessage('Course is required')
+    .optional()
     .trim()
     .isLength({ min: 1, max: 200 })
     .withMessage('Course must be between 1 and 200 characters'),

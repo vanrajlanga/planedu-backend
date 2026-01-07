@@ -19,9 +19,13 @@ exports.getColleges = async (req, res) => {
       ownership = '',
       min_rating = 0,
       max_rating = 5,
+      min_fees = '',
+      max_fees = '',
+      stream = '',
+      degree = '',
       is_featured = '',
       is_verified = '',
-      sort_by = 'created_at',
+      sort_by = 'popularity',
       sort_order = 'DESC'
     } = req.query;
 
@@ -31,6 +35,7 @@ exports.getColleges = async (req, res) => {
     const conditions = ["c.status = 'active'", "c.deleted_at IS NULL"];
     const params = [];
     let paramCount = 1;
+    let needsCourseJoin = false;
 
     // Search filter
     if (search) {
@@ -78,6 +83,37 @@ exports.getColleges = async (req, res) => {
       paramCount += 2;
     }
 
+    // Fee range filter (requires course join)
+    if (min_fees) {
+      needsCourseJoin = true;
+      conditions.push(`co.total_fees >= $${paramCount}`);
+      params.push(parseFloat(min_fees));
+      paramCount++;
+    }
+
+    if (max_fees) {
+      needsCourseJoin = true;
+      conditions.push(`co.total_fees <= $${paramCount}`);
+      params.push(parseFloat(max_fees));
+      paramCount++;
+    }
+
+    // Stream filter
+    if (stream) {
+      needsCourseJoin = true;
+      conditions.push(`co.stream ILIKE $${paramCount}`);
+      params.push(`%${stream}%`);
+      paramCount++;
+    }
+
+    // Degree filter
+    if (degree) {
+      needsCourseJoin = true;
+      conditions.push(`co.degree_type ILIKE $${paramCount}`);
+      params.push(`%${degree}%`);
+      paramCount++;
+    }
+
     // Featured/Verified filters
     if (is_featured === 'true') {
       conditions.push(`c.is_featured = true`);
@@ -87,31 +123,74 @@ exports.getColleges = async (req, res) => {
       conditions.push(`c.is_verified = true`);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    // Add course join conditions if needed
+    if (needsCourseJoin) {
+      conditions.push("co.status = 'active'");
+      conditions.push("co.deleted_at IS NULL");
+    }
 
-    // Validate sort column to prevent SQL injection
-    const allowedSortColumns = [
-      'college_name',
-      'created_at',
-      'avg_rating',
-      'total_reviews',
-      'view_count'
-    ];
-    const sortColumn = allowedSortColumns.includes(sort_by) ? sort_by : 'created_at';
-    const sortDirection = sort_order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const courseJoin = needsCourseJoin ? 'INNER JOIN courses co ON c.college_id = co.college_id' : '';
+
+    // Sort mapping with improved options
+    let orderByClause;
+    switch (sort_by) {
+      case 'rating':
+        orderByClause = 'c.avg_rating DESC NULLS LAST, c.total_reviews DESC';
+        break;
+      case 'fees_high':
+        orderByClause = 'min_fee DESC NULLS LAST';
+        break;
+      case 'fees_low':
+        orderByClause = 'min_fee ASC NULLS LAST';
+        break;
+      case 'name':
+        orderByClause = 'c.college_name ASC';
+        break;
+      case 'popularity':
+      default:
+        orderByClause = 'c.is_featured DESC, c.view_count DESC NULLS LAST, c.avg_rating DESC NULLS LAST';
+        break;
+    }
 
     // Get total count
     const countQuery = `
-      SELECT COUNT(*) as total
+      SELECT COUNT(DISTINCT c.college_id) as total
       FROM colleges c
+      ${courseJoin}
       ${whereClause}
     `;
 
     const countResult = await client.query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
 
-    // Get colleges
-    const collegesQuery = `
+    // Get colleges with course fees
+    const collegesQuery = needsCourseJoin ? `
+      SELECT DISTINCT ON (c.college_id)
+        c.college_id,
+        c.college_name,
+        c.short_name,
+        c.slug,
+        c.established_year,
+        c.college_type,
+        c.ownership,
+        c.state,
+        c.city,
+        c.pincode,
+        c.description,
+        c.logo_url,
+        c.avg_rating,
+        c.total_reviews,
+        c.view_count,
+        c.is_featured,
+        c.is_verified,
+        c.created_at,
+        co.total_fees as min_fee
+      FROM colleges c
+      ${courseJoin}
+      ${whereClause}
+      ORDER BY c.college_id, co.total_fees ASC NULLS LAST
+    ` : `
       SELECT
         c.college_id,
         c.college_name,
@@ -130,16 +209,24 @@ exports.getColleges = async (req, res) => {
         c.view_count,
         c.is_featured,
         c.is_verified,
-        c.created_at
+        c.created_at,
+        (SELECT MIN(co2.total_fees) FROM courses co2 WHERE co2.college_id = c.college_id AND co2.status = 'active') as min_fee
       FROM colleges c
       ${whereClause}
-      ORDER BY c.${sortColumn} ${sortDirection}
+      ORDER BY ${orderByClause}
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
     `;
 
+    // For course-join queries, we need a subquery to apply final sorting and pagination
+    const finalQuery = needsCourseJoin ? `
+      SELECT * FROM (${collegesQuery}) as subq
+      ORDER BY ${orderByClause.replace(/c\./g, '')}
+      LIMIT $${paramCount} OFFSET $${paramCount + 1}
+    ` : collegesQuery;
+
     params.push(parseInt(limit), offset);
 
-    const collegesResult = await client.query(collegesQuery, params);
+    const collegesResult = await client.query(finalQuery, params);
 
     res.json({
       success: true,
@@ -158,6 +245,10 @@ exports.getColleges = async (req, res) => {
         ownership,
         min_rating,
         max_rating,
+        min_fees,
+        max_fees,
+        stream,
+        degree,
         is_featured,
         is_verified
       }

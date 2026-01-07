@@ -15,6 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 // Import public routes
 const publicCollegeRoutes = require('./routes/public/publicCollegeRoutes');
 const publicCourseRoutes = require('./routes/public/publicCourseRoutes');
+const brochureRoutes = require('./routes/public/brochureRoutes');
 
 // Import admin routes
 const adminAuthRoutes = require('./routes/admin/adminAuthRoutes');
@@ -103,6 +104,7 @@ app.use('/api/v1/user', userRoutes);
 // Public API Routes
 app.use('/api/v1', publicCollegeRoutes);
 app.use('/api/v1', publicCourseRoutes);
+app.use('/api/v1/brochures', brochureRoutes);
 
 // Admin API Routes
 app.use('/api/v1/admin/auth', adminAuthRoutes);
